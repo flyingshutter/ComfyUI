@@ -978,6 +978,26 @@ class ImagePadForOutpaint:
         return (new_image, mask)
 
 
+class BatchIndex:
+    def __init__(self) -> None:
+        pass
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "batch_index": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
+            },
+        }
+
+    RETURN_TYPES = ("FLOAT",)
+    FUNCTION = "getBatchIndex"
+    CATEGORY = "utils"
+
+    def getBatchIndex(self, batch_index):
+        return (batch_index,)
+    
+
 NODE_CLASS_MAPPINGS = {
     "KSampler": KSampler,
     "CheckpointLoader": CheckpointLoader,
@@ -1016,6 +1036,7 @@ NODE_CLASS_MAPPINGS = {
     "CLIPVisionLoader": CLIPVisionLoader,
     "VAEDecodeTiled": VAEDecodeTiled,
     "VAEEncodeTiled": VAEEncodeTiled,
+    "BatchIndex": BatchIndex,
 }
 
 def load_custom_node(module_path):
