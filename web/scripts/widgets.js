@@ -10,6 +10,25 @@ function getNumberDefaults(inputData, defaultStep) {
 	return { val: defaultVal, config: { min, max, step: 10.0 * step } };
 }
 
+export function getBatchIndexWidget(node, targetWidget, name, defaultValue = false) {
+	const getBatchIndex = node.addWidget("INT", name, defaultValue, function (v) {}, {
+		serialize: true, // Don't include this in prompt.
+	});
+
+	getBatchIndex.beforeQueued = () => {
+		targetWidget.value = app.batchIndex
+	};
+	return getBatchIndex;
+}
+
+function batchIndexWidget(node, inputName, inputData) {
+	const batch_index = ComfyWidgets.INT(node, inputName, inputData);
+	const getBatchIndex = getBatchIndexWidget(node, batch_index.widget, "Global Widget Text", true);
+
+	batch_index.widget.linkedWidgets = [getBatchIndex];
+	return { widget: batch_index, getBatchIndex };
+}
+
 export function addRandomizeWidget(node, targetWidget, name, defaultValue = false) {
 	const randomize = node.addWidget("toggle", name, defaultValue, function (v) {}, {
 		on: "enabled",
@@ -197,6 +216,7 @@ function addMultilineWidget(node, name, opts, app) {
 }
 
 export const ComfyWidgets = {
+	"INT:batch_index": batchIndexWidget,
 	"INT:seed": seedWidget,
 	"INT:noise_seed": seedWidget,
 	FLOAT(node, inputName, inputData) {
