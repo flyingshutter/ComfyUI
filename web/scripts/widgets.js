@@ -12,7 +12,7 @@ function getNumberDefaults(inputData, defaultStep) {
 
 export function getBatchIndexWidget(node, targetWidget, name, defaultValue = false) {
 	const getBatchIndex = node.addWidget("INT", name, defaultValue, function (v) {}, {
-		serialize: true, // Don't include this in prompt.
+		serialize: false, // Don't include this in prompt.
 	});
 
 	getBatchIndex.beforeQueued = () => {
