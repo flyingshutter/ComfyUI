@@ -19,64 +19,35 @@ export function addSeedControlWidget(node, targetWidget, defaultValue = "randomi
 
 		var v = seedControl.value;
 
-		const min = targetWidget.options?.min;
-		let max = targetWidget.options?.max;
+		let min_val = targetWidget.options?.min;
+		let max_val = targetWidget.options?.max;
+		let step_size = targetWidget.options?.step / 10;
+
+		let current_val = targetWidget.value;
+		let new_val;
 
 		switch (v) {
 			case ("fixed seed"):
-				console.log("Fixed Seed");
 				break;
 			case ("increment"):
-				if (min != null || max != null) {
-					if (max) {
-						// limit max to something that javascript can handle
-						max = Math.min(1125899906842624, max);
-					}
-					/*if (max) { //loop to lowest and continue batch
-						targetWidget.value = 0;
-						console.log("increment");
-					} else {
-						targetWidget.value += 1;
-						console.log("increment");
-					}
-				} else {*/
-					if (max >= 1125899906842624) {
-						targetWidget.value += 1;
-						console.log("increment");
-                    }				
-				}
+				new_val = current_val + step_size;
+				new_val = Math.min(new_val, max_val);
+				new_val = Math.max(new_val, min_val);
+				targetWidget.value = new_val;
+				
 				break;
 			case ("decrement"):
-				if (min != null || max != null) {
-					if (min) {
-						// limit min to something that javascript can handle
-						min = Math.min(0, min);
-					}
-					/*if (min) { //Loop to highest and continue batch
-						targetWidget.value = 1125899906842624;
-						console.log("decrement");
-					} else {
-						targetWidget.value -= 1;
-						console.log("decrement");
-					} else {*/
-					if (min) { 
-						targetWidget.value -= 1;
-						console.log("decrement");
-					}
-				}
+				new_val = current_val - step_size;
+				new_val = Math.min(new_val, max_val);
+				new_val = Math.max(new_val, min_val);
+				targetWidget.value = new_val;
+				
 				break;
 			case ("randomize"):
-				if (min != null || max != null) {
-					if (max) {
-						// limit max to something that javascript can handle
-						max = Math.min(1125899906842624, max);
-					}
-					targetWidget.value = Math.floor(Math.random() * ((max ?? 9999999999) - (min ?? 0) + 1) + (min ?? 0));
-					console.log("Random");
-				} else {
-					targetWidget.value = Math.floor(Math.random() * 1125899906842624);
-					console.log("Random");
-				}
+				new_val = Math.random() * (max_val - min_val) + min_val;
+				new_val = Math.round(new_val / step_size) * step_size;
+				targetWidget.value = new_val;
+				
 				break;
 			default:
 				console.log("default (fail)");
