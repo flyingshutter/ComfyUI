@@ -21,6 +21,9 @@ export function addSeedControlWidget(node, targetWidget, defaultValue = "randomi
 
 		let min_val = targetWidget.options?.min;
 		let max_val = targetWidget.options?.max;
+		// limit max to something that javascript can handle
+		max_val = Math.min(1125899906842624, max_val);
+
 		let step_size = targetWidget.options?.step / 10;
 
 		let current_val = targetWidget.value;
