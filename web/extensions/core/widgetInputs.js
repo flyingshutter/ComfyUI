@@ -294,11 +294,11 @@ app.registerExtension({
 					}
 					
 					// addSeedControlWidget(node, seed.widget, "randomize");
-					/*
+					
 					if (widget.type === "number") {
 						addSeedControlWidget(this, widget, "fixed seed");
 					}
-					*/
+					
 				}
 
 				if (node?.widgets && widget) {
