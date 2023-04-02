@@ -10,37 +10,59 @@ function getNumberDefaults(inputData, defaultStep) {
 	return { val: defaultVal, config: { min, max, step: 10.0 * step } };
 }
 
-export function addRandomizeWidget(node, targetWidget, name, defaultValue = false) {
-	const randomize = node.addWidget("toggle", name, defaultValue, function (v) {}, {
-		on: "enabled",
-		off: "disabled",
+export function addSeedControlWidget(node, targetWidget, defaultValue = "randomize", values) {
+	const seedControl = node.addWidget("combo", "seed control after generating", defaultValue, function (v) { }, {
+		values: ["fixed seed", "increment", "decrement", "randomize"],
 		serialize: false, // Don't include this in prompt.
-	});
+	})
+	seedControl.afterQueued = () => {
 
-	randomize.afterQueued = () => {
-		if (randomize.value) {
-			const min = targetWidget.options?.min;
-			let max = targetWidget.options?.max;
-			if (min != null || max != null) {
-				if (max) {
-					// limit max to something that javascript can handle
-					max = Math.min(1125899906842624, max);
-				}
-				targetWidget.value = Math.floor(Math.random() * ((max ?? 9999999999) - (min ?? 0) + 1) + (min ?? 0));
-			} else {
-				targetWidget.value = Math.floor(Math.random() * 1125899906842624);
-			}
+		var v = seedControl.value;
+
+		let min_val = targetWidget.options?.min;
+		let max_val = targetWidget.options?.max;
+		let step_size = targetWidget.options?.step / 10;
+
+		let current_val = targetWidget.value;
+		let new_val;
+
+		switch (v) {
+			case ("fixed seed"):
+				break;
+			case ("increment"):
+				new_val = current_val + step_size;
+				new_val = Math.min(new_val, max_val);
+				new_val = Math.max(new_val, min_val);
+				targetWidget.value = new_val;
+				
+				break;
+			case ("decrement"):
+				new_val = current_val - step_size;
+				new_val = Math.min(new_val, max_val);
+				new_val = Math.max(new_val, min_val);
+				targetWidget.value = new_val;
+				
+				break;
+			case ("randomize"):
+				new_val = Math.random() * (max_val - min_val) + min_val;
+				new_val = Math.round(new_val / step_size) * step_size;
+				targetWidget.value = new_val;
+				
+				break;
+			default:
+				console.log("default (fail)");
 		}
 	};
-	return randomize;
+
+	return seedControl;
 }
 
 function seedWidget(node, inputName, inputData) {
 	const seed = ComfyWidgets.INT(node, inputName, inputData);
-	const randomize = addRandomizeWidget(node, seed.widget, "Random seed after every gen", true);
+	const seedControl = addSeedControlWidget(node, seed.widget, "randomize");
 
-	seed.widget.linkedWidgets = [randomize];
-	return { widget: seed, randomize };
+	seed.widget.linkedWidgets = [seedControl];
+	return seed;
 }
 
 const MultilineSymbol = Symbol();

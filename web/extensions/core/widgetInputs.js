@@ -1,12 +1,16 @@
-import { ComfyWidgets, addRandomizeWidget } from "/scripts/widgets.js";
+import { ComfyWidgets, addSeedControlWidget } from "/scripts/widgets.js";
 import { app } from "/scripts/app.js";
 
 const CONVERTED_TYPE = "converted-widget";
 const VALID_TYPES = ["STRING", "combo", "number"];
 
 function isConvertableWidget(widget, config) {
-	return VALID_TYPES.includes(widget.type) || VALID_TYPES.includes(config[0]);
+	if (widget.name == "seed control after generating")
+		widget.allowConvertToInput = false;
+	else
+		return VALID_TYPES.includes(widget.type) || VALID_TYPES.includes(config[0]);
 }
+
 
 function hideWidget(node, widget, suffix = "") {
 	widget.origType = widget.type;
@@ -23,7 +27,7 @@ function hideWidget(node, widget, suffix = "") {
 		return widget.value;
 	};
 
-	// Hide any linked widgets, e.g. seed+randomize
+	// Hide any linked widgets, e.g. seed+seedControl
 	if (widget.linkedWidgets) {
 		for (const w of widget.linkedWidgets) {
 			hideWidget(node, w, ":" + widget.name);
@@ -40,7 +44,7 @@ function showWidget(widget) {
 	delete widget.origComputeSize;
 	delete widget.origSerializeValue;
 
-	// Hide any linked widgets, e.g. seed+randomize
+	// Hide any linked widgets, e.g. seed+seedControl
 	if (widget.linkedWidgets) {
 		for (const w of widget.linkedWidgets) {
 			showWidget(w);
@@ -163,6 +167,8 @@ app.registerExtension({
 				const node = LiteGraph.createNode("PrimitiveNode");
 				app.graph.add(node);
 
+				//node.widgets.addSeedControlWidget(node,node.widgets[0],"randomize");
+
 				// Calculate a position that wont directly overlap another node
 				const pos = [this.pos[0] - node.size[0] - 30, this.pos[1]];
 				while (isNodeAtPos(pos)) {
@@ -271,21 +277,36 @@ app.registerExtension({
 				}
 
 				let widget;
-				if (type in ComfyWidgets) {
-					widget = (ComfyWidgets[type](this, "value", inputData, app) || {}).widget;
+				
+				// ComfyWidgets allows a subtype of widgets which is defined by "<type>:<widgetName>"
+				// common example is "INT:seed"
+				// so let's check for those first
+				let combinedWidgetType = type + ":" + widgetName;
+				if (combinedWidgetType in ComfyWidgets) {
+					// widget = (ComfyWidgets[combinedWidgetType](this, "value", inputData, app) || {}).widget;
+					widget = (ComfyWidgets[combinedWidgetType](this, widgetName, inputData, app) || {}).widget;
 				} else {
-					widget = this.addWidget(type, "value", null, () => {}, {});
+					// we did not find a subtype, so proceed with "<type>" only
+					if (type in ComfyWidgets) {
+						widget = (ComfyWidgets[type](this, widgetName/*"value*"*/, inputData, app) || {}).widget;
+					} else {
+						widget = this.addWidget(type, widgetName /*"value"*/, null, () => { }, {});
+					}
+					
+					// addSeedControlWidget(node, seed.widget, "randomize");
+					
+					if (widget.type === "number") {
+						addSeedControlWidget(this, widget, "fixed seed");
+					}
+					
 				}
 
 				if (node?.widgets && widget) {
-					const theirWidget = node.widgets.find((w) => w.name === widgetName);
+
+				const theirWidget = node.widgets.find((w) => w.name === widgetName);
 					if (theirWidget) {
 						widget.value = theirWidget.value;
 					}
-				}
-
-				if (widget.type === "number") {
-					addRandomizeWidget(this, widget, "Random after every gen");
 				}
 
 				// When our value changes, update other widgets to reflect our changes

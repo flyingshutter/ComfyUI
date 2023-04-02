@@ -828,11 +828,16 @@ class ComfyApp {
 								widget.value = widget.value.slice(7);
 							}
 						}
+						if (widget.name == "seed control after generating") {
+							if (widget.value == true) {
+								widget.value = "randomize";
+							}
+
+						}
 					}
 				}
+				this.#invokeExtensions("loadedGraphNode", node);
 			}
-
-			this.#invokeExtensions("loadedGraphNode", node);
 		}
 	}
 
