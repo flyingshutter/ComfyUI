@@ -10,9 +10,10 @@ function getNumberDefaults(inputData, defaultStep) {
 	return { val: defaultVal, config: { min, max, step: 10.0 * step } };
 }
 
-export function addSeedControlWidget(node, targetWidget, defaultValue = "randomize", values) {
-	const seedControl = node.addWidget("combo", "seed control after generating", defaultValue, function (v) { }, {
-		values: ["fixed seed", "increment", "decrement", "randomize"],
+export function addRandomizeWidget(node, targetWidget, name, defaultValue = false) {
+	const randomize = node.addWidget("toggle", name, defaultValue, function (v) {}, {
+		on: "enabled",
+		off: "disabled",
 		serialize: false, // Don't include this in prompt.
 	})
 	seedControl.forbidConvertToInput = true;
@@ -58,16 +59,15 @@ export function addSeedControlWidget(node, targetWidget, defaultValue = "randomi
 				console.log("default (fail)");
 		}
 	};
-
-	return seedControl;
+	return randomize;
 }
 
 function seedWidget(node, inputName, inputData) {
 	const seed = ComfyWidgets.INT(node, inputName, inputData);
-	const seedControl = addSeedControlWidget(node, seed.widget, "randomize");
+	const randomize = addRandomizeWidget(node, seed.widget, "Random seed after every gen", true);
 
-	seed.widget.linkedWidgets = [seedControl];
-	return seed;
+	seed.widget.linkedWidgets = [randomize];
+	return { widget: seed, randomize };
 }
 
 const MultilineSymbol = Symbol();
