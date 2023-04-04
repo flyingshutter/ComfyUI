@@ -58,15 +58,15 @@ export function addSeedControlWidget(node, targetWidget, defaultValue = "randomi
 				console.log("default (fail)");
 		}
 	};
-	return randomize;
+	return seedControl;
 }
 
 function seedWidget(node, inputName, inputData) {
 	const seed = ComfyWidgets.INT(node, inputName, inputData);
-	const randomize = addRandomizeWidget(node, seed.widget, "Random seed after every gen", true);
+	const seedControl = addSeedControlWidget(node, seed.widget, "randomize");
 
-	seed.widget.linkedWidgets = [randomize];
-	return { widget: seed, randomize };
+	seed.widget.linkedWidgets = [seedControl];
+	return seed;
 }
 
 const MultilineSymbol = Symbol();
