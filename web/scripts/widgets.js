@@ -10,10 +10,9 @@ function getNumberDefaults(inputData, defaultStep) {
 	return { val: defaultVal, config: { min, max, step: 10.0 * step } };
 }
 
-export function addRandomizeWidget(node, targetWidget, name, defaultValue = false) {
-	const randomize = node.addWidget("toggle", name, defaultValue, function (v) {}, {
-		on: "enabled",
-		off: "disabled",
+export function addSeedControlWidget(node, targetWidget, defaultValue = "randomize", values) {
+	const seedControl = node.addWidget("combo", "seed control after generating", defaultValue, function (v) { }, {
+		values: ["fixed seed", "increment", "decrement", "randomize"],
 		serialize: false, // Don't include this in prompt.
 	})
 	seedControl.forbidConvertToInput = true;
