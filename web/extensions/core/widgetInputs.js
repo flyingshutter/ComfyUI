@@ -1,4 +1,4 @@
-import { ComfyWidgets, addRandomizeWidget } from "/scripts/widgets.js";
+import { ComfyWidgets, addSeedControlWidget } from "/scripts/widgets.js";
 import { app } from "/scripts/app.js";
 
 const CONVERTED_TYPE = "converted-widget";
