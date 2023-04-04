@@ -5,10 +5,7 @@ const CONVERTED_TYPE = "converted-widget";
 const VALID_TYPES = ["STRING", "combo", "number"];
 
 function isConvertableWidget(widget, config) {
-	if (widget.name == "seed control after generating")
-		widget.allowConvertToInput = false;
-	else
-		return VALID_TYPES.includes(widget.type) || VALID_TYPES.includes(config[0]);
+	return VALID_TYPES.includes(widget.type)  && (! widget.forbidConvertToInput);
 }
 
 

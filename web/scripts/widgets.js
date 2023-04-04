@@ -15,6 +15,8 @@ export function addSeedControlWidget(node, targetWidget, defaultValue = "randomi
 		values: ["fixed seed", "increment", "decrement", "randomize"],
 		serialize: false, // Don't include this in prompt.
 	})
+	seedControl.forbidConvertToInput = true;
+	
 	seedControl.afterQueued = () => {
 
 		var v = seedControl.value;
