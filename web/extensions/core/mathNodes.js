@@ -10,8 +10,8 @@ class Math {
 
         const algo = this.addWidget("combo","", "add", () => {}, { values:["add","subtract","multiply, divide"]} );
         
-        const val1 = this.addWidget("number","Number", 0, () => {}, {} );
-        const val2 = this.addWidget("number","Number", 0, () => {}, {} );
+        const val1Widget = this.addWidget("number","Number", 0, () => {}, {} );
+        const val2Widget = this.addWidget("number","Number", 0, () => {}, {} );
 
         this.setOutputData( 0, 15);
 
@@ -62,10 +62,36 @@ class Math {
         }
     }
 
+    algorithm(values) {
+
+    }
+
+    collectValues() {
+        for (let input of this.inputs) {
+            
+        }
+    }
+
     
-    applyToGraph () {
-        console.log("EXECUTE");
-        this.outputs[0].value = 23;
+    applyToGraph() {
+        if (!this.outputs[0].links?.length) return;
+
+        // For each output link copy our value over the original widget value
+        for (const l of this.outputs[0].links) {
+            const linkInfo = app.graph.links[l];
+            const theirNode = this.graph.getNodeById(linkInfo.target_id);
+            const theirInput = theirNode.inputs[linkInfo.target_slot];
+            const widgetName = theirInput.widget.name;
+            if (widgetName) {
+                const widget = node.widgets.find((w) => w.name === widgetName);
+                if (widget) {
+                    widget.value = this.widgets[0].value;
+                    if (widget.callback) {
+                        widget.callback(widget.value, app.canvas, node, app.canvas.graph_mouse, {});
+                    }
+                }
+            }
+        }
     }
 }
 
